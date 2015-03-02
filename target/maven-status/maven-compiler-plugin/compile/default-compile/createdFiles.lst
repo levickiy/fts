@@ -1,0 +1,10 @@
+fts\dao\LuceneDao.class
+fts\controller\SearchController.class
+fts\bean\PageParser.class
+fts\Crawler.class
+fts\service\IndexService.class
+fts\service\CrawlerService.class
+fts\bean\Page.class
+fts\service\SearchService.class
+fts\controller\IndexController.class
+fts\Crawler$Resource.class
