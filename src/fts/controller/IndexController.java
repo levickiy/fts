@@ -29,6 +29,6 @@ public class IndexController {
 	
 	@RequestMapping(value= "/index", method=RequestMethod.GET)
 	public ModelAndView index() {
-		return new ModelAndView("index", "message", indexPath);
+		return new ModelAndView("index", "message", "Put page url and click button.");
 	}
 }

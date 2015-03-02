@@ -37,25 +37,32 @@ public class CrawlerService {
 			return;
 		}
 
+		Thread crawlerThread = new Thread(new Runnable()  {
+			
+			@Override
+			public void run() {
+				crawler.init(scanDeep, linkCountLimit);
+				crawler.setStartPage(startUrl);
+				crawler.start();
 
-		crawler.init(scanDeep, linkCountLimit);
-		crawler.setStartPage(startUrl);
-		crawler.start();
-
-		Set<Page> scannedPages = crawler.getResults();
-		log.info("[CrawlerService] fetched " + scannedPages.size() + " page");
-		Document doc;
-		for(Page page : scannedPages) {
-			doc = new Document();
-			doc.add(new TextField("url", page.getUrl(), Store.YES));
-			doc.add(new TextField("title", page.getTitle(), Store.YES));
-			doc.add(new TextField("content", page.getContent(), Store.YES));
-			try {
-				luceneService.addDocument(doc);
-			} catch (IOException e) {
-				log.equals("[CrawlerService] problem with adding docoment to index " + e.getMessage());
+				Set<Page> scannedPages = crawler.getResults();
+				log.info("[CrawlerService] fetched " + scannedPages.size() + " page");
+				Document doc;
+				for(Page page : scannedPages) {
+					doc = new Document();
+					doc.add(new TextField("url", page.getUrl(), Store.YES));
+					doc.add(new TextField("title", page.getTitle(), Store.YES));
+					doc.add(new TextField("content", page.getContent(), Store.YES));
+					try {
+						luceneService.addDocument(doc);
+					} catch (IOException e) {
+						log.equals("[CrawlerService] problem with adding docoment to index " + e.getMessage());
+					}
+				}
+				
 			}
-		}
+		});
+		crawlerThread.start();
 	}
 
 	public void stop() {
