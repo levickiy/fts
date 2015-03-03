@@ -30,7 +30,7 @@ input[name="q"] {
 			<div>${message}</div>
 		</div>
 		<div class="footer">
-			<a href="./">/</a> | <a href="./index">index</a>
+			<a href="./">/</a> | <a href="./index">index</a> | <a href="./indexclear">clear index</a>
 		</div>
 	</div>
 </body>

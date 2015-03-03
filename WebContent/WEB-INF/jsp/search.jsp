@@ -46,7 +46,7 @@ input[name="q"] {
 				</div>
 			</c:forEach>
 			<div class="footer">
-				<a href="./">/</a> | <a href="./index">index</a>
+				<a href="./">/</a> | <a href="./index">index</a> | <a href="./indexclear">clear index</a>
 			</div>
 		</div>
 	</div>
