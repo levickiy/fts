@@ -19,14 +19,13 @@ public class CrawlerService {
 	@Value("${fts.crawler.links_per_page}")
 	private Integer linkCountLimit;
 
-	private Crawler crawler = new Crawler();
-
 	@Autowired
 	private LuceneService luceneService;
 
 	private String startUrl;
 
-	public void start() {
+	public void start(String url) {
+		this.startUrl = url;
 		if (null == startUrl) {
 			log.info("Start url not set.");
 			return;
@@ -36,6 +35,7 @@ public class CrawlerService {
 
 			@Override
 			public void run() {
+				Crawler crawler = new Crawler();
 				crawler.init(scanDeep, linkCountLimit);
 				crawler.setStartPage(startUrl);
 				crawler.start();
@@ -46,17 +46,5 @@ public class CrawlerService {
 			}
 		});
 		crawlerThread.start();
-	}
-
-	public void stop() {
-		crawler.stop();
-	}
-
-	public String getStartUrl() {
-		return startUrl;
-	}
-
-	public void setStartUrl(String startUrl) {
-		this.startUrl = startUrl;
 	}
 }

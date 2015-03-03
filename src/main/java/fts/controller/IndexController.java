@@ -24,18 +24,16 @@ public class IndexController {
 
 	@RequestMapping(value = "/index", method = RequestMethod.POST)
 	public ModelAndView indexing(@RequestParam(value = "q", required = false) String query) {
-
-		crawlerService.setStartUrl(query);
-		crawlerService.start();
+		crawlerService.start(query);
 
 		String message = "indexing page: " + query;
 		return new ModelAndView("index", "message", message);
 	}
 
 	@RequestMapping(value = "/indexclear")
-	public ModelAndView reset() {
+	public String reset() {
 		luceneService.clearIndex();
-		return new ModelAndView("redirect:index", "message", "Index clear.");
+		return "redirect:index";
 	}
 
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
