@@ -49,10 +49,10 @@ public class Crawler {
 
 		while (true) {
 			if(!isProcess) {
-				log.info("[Crawler] Crawler stoped.");
+				log.info("Crawler stoped.");
 				break;
 			}
-			log.info("[Crawler] queue size: " + queue.size() + " loaded links count: " + loaded.size());
+			log.info("Queue size: " + queue.size() + " loaded links count: " + loaded.size());
 
 			resource = queue.poll();
 
@@ -61,17 +61,17 @@ public class Crawler {
 			}
 
 			if (loaded.contains(resource.url)) {
-				log.info("[Crawler] skipped link " + resource.url);
+				log.info("Skipped " + resource.url);
 				continue;
 			}
 
 			try {
-				log.info("[Crawler] loading link " + resource.url + " level " + resource.level);
+				log.info("Loaded " + resource.url + " level " + resource.level);
 				sb = performHttpGet(resource.url);
 				
 				
 			} catch (IOException e) {
-				log.info("[Crawler] error in loading url " + resource.url + "\n" + e.getMessage());
+				log.info("Error in loading url " + resource.url + "\n" + e.getMessage());
 				continue;
 			}
 			level = resource.level - 1;
@@ -92,12 +92,12 @@ public class Crawler {
 					}
 					queue.add(new Resource(link, level));
 				}
-				log.info("[Crawler] added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
+				log.info("Added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
 			}
 
 			loaded.add(resource.url);
 		}
-		log.info("[Crawler] end");
+		log.info("end.");
 
 	}
 

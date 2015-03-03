@@ -34,9 +34,9 @@ public class SearchController {
 		try {
 			results = luceneService.search(query);
 		} catch (ParseException e) {
-			log.error("[SearchController] " + e.getMessage());
+			log.error(e.getMessage());
 		} catch (IOException e) {
-			log.error("[SearchController] " + e.getMessage());
+			log.error(e.getMessage());
 		}
 
 		model.put("results", results);
