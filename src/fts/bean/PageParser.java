@@ -61,7 +61,7 @@ public class PageParser {
 
 			return uri.resolve(partURI).toString();
 		} catch (Exception e) {
-			log.equals("Error in " + partURI);
+			log.error("Error in " + partURI);
 		}
 		return null;
 
