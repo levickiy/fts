@@ -18,7 +18,7 @@ public class PageParser {
 		Matcher regexMatcher = regex.matcher(sb);
 		while (regexMatcher.find()) {
 			if (3 != regexMatcher.groupCount()) {
-				log.error("[PageParser] problem in grabbing link found group count " + regexMatcher.groupCount());
+				log.error("Problem in grabbing links from page " + urlContext);
 			}
 			String normalisedUri = normaliseUri(urlContext, regexMatcher.group(2));
 
@@ -38,7 +38,15 @@ public class PageParser {
 	private static String getTitle(StringBuilder sb) {
 		Pattern regex = Pattern.compile("<title>([^<]*)</title>");
 		Matcher regexMatcher = regex.matcher(sb);
-		regexMatcher.find();
+		boolean state = regexMatcher.find();
+		if (!state) {
+			log.error("Title not found.");
+			return "";
+		}
+		if (1 != regexMatcher.groupCount()) {
+			log.error("Title not found.");
+			return "";
+		}
 		return regexMatcher.group(1);
 	}
 
@@ -53,7 +61,7 @@ public class PageParser {
 
 			return uri.resolve(partURI).toString();
 		} catch (Exception e) {
-			log.equals("[PageParser] error in " + partURI);
+			log.equals("Error in " + partURI);
 		}
 		return null;
 
