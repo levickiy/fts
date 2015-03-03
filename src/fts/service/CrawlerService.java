@@ -1,12 +1,7 @@
 package fts.service;
 
-
-import java.io.IOException;
 import java.util.Set;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.document.Field.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,27 +13,27 @@ import fts.bean.Page;
 
 @Service
 public class CrawlerService {
-	private Logger  log = LoggerFactory.getLogger(CrawlerService.class);
+	private Logger log = LoggerFactory.getLogger(CrawlerService.class);
 	@Value("${fts.crawler.scan_deep}")
 	private Integer scanDeep;
 	@Value("${fts.crawler.links_per_page}")
 	private Integer linkCountLimit;
-	
+
 	private Crawler crawler = new Crawler();
-	
+
 	@Autowired
 	private LuceneService luceneService;
 
 	private String startUrl;
 
 	public void start() {
-		if(null == startUrl) {
-			log.info("[CrawlerService] start url not set.");
+		if (null == startUrl) {
+			log.info("Start url not set.");
 			return;
 		}
 
-		Thread crawlerThread = new Thread(new Runnable()  {
-			
+		Thread crawlerThread = new Thread(new Runnable() {
+
 			@Override
 			public void run() {
 				crawler.init(scanDeep, linkCountLimit);
@@ -46,20 +41,8 @@ public class CrawlerService {
 				crawler.start();
 
 				Set<Page> scannedPages = crawler.getResults();
-				log.info("[CrawlerService] fetched " + scannedPages.size() + " page");
-				Document doc;
-				for(Page page : scannedPages) {
-					doc = new Document();
-					doc.add(new TextField("url", page.getUrl(), Store.YES));
-					doc.add(new TextField("title", page.getTitle(), Store.YES));
-					doc.add(new TextField("content", page.getContent(), Store.YES));
-					try {
-						luceneService.addDocument(doc);
-					} catch (IOException e) {
-						log.equals("[CrawlerService] problem with adding docoment to index " + e.getMessage());
-					}
-				}
-				
+				log.info("fetched " + scannedPages.size() + " page");
+				luceneService.addDocuments(scannedPages);
 			}
 		});
 		crawlerThread.start();
