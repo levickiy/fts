@@ -9,16 +9,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import fts.service.CrawlerService;
+import fts.service.LuceneService;
 
 @Controller
 public class IndexController {
 	@Value("${fts.lucene.index_path}")
 	private String indexPath;
-	
+
 	@Autowired
 	private CrawlerService crawlerService;
-	@RequestMapping(value= "/index", method=RequestMethod.POST)
-	public ModelAndView indexing(@RequestParam(value="q", required=false) String query) {
+
+	@Autowired
+	private LuceneService luceneService;
+
+	@RequestMapping(value = "/index", method = RequestMethod.POST)
+	public ModelAndView indexing(@RequestParam(value = "q", required = false) String query) {
 
 		crawlerService.setStartUrl(query);
 		crawlerService.start();
@@ -26,8 +31,14 @@ public class IndexController {
 		String message = "indexing page: " + query;
 		return new ModelAndView("index", "message", message);
 	}
-	
-	@RequestMapping(value= "/index", method=RequestMethod.GET)
+
+	@RequestMapping(value = "/indexclear")
+	public ModelAndView reset() {
+		luceneService.clearIndex();
+		return new ModelAndView("redirect:index", "message", "Index clear.");
+	}
+
+	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public ModelAndView index() {
 		return new ModelAndView("index", "message", "Put page url and click button.");
 	}
