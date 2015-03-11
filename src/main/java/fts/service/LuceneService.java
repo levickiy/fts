@@ -45,7 +45,7 @@ public class LuceneService {
 		}
 	}
 
-	public void addDocuments(Set<Page> scannedPages) {
+	public void addDocuments(Iterable<Page> scannedPages) {
 		try {
 			initIndex();
 

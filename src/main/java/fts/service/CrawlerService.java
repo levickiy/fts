@@ -1,19 +1,20 @@
 package fts.service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.WebApplicationContext;
 
 import fts.bean.Crawler;
 import fts.bean.Page;
 
-@Scope(value=WebApplicationContext.SCOPE_REQUEST)
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Service
 public class CrawlerService {
 	private Logger log = LoggerFactory.getLogger(CrawlerService.class);
@@ -43,11 +44,37 @@ public class CrawlerService {
 				crawler.setStartPage(startUrl);
 				crawler.start();
 
-				Set<Page> scannedPages = crawler.getResults();
-				log.info("fetched " + scannedPages.size() + " page");
-				luceneService.addDocuments(scannedPages);
+				int counter = 0;
+				Set<Page> scannedPages;
+				Page page;
+				while (!crawler.isDone() || !crawler.getResults().isEmpty()) {
+					if (!crawler.getResults().isEmpty()) {
+						scannedPages = new HashSet<Page>();
+
+						for (int i = 0; i < 10; i++) {
+							page = crawler.getResults().poll();
+							if (null == page) {
+								break;
+							}
+							scannedPages.add(page);
+							counter++;
+						}
+
+						luceneService.addDocuments(scannedPages);
+						log.info("Added  " + scannedPages.size() + " page, " + counter);
+					}
+
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				log.info("Total added " + counter + " page to lucene index.");
+
 			}
 		});
 		crawlerThread.start();
+
 	}
 }
