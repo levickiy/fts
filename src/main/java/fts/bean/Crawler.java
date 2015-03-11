@@ -58,7 +58,6 @@ public class Crawler {
 		Resource resource = new Resource(startPage, scanDeep);
 		queue.add(resource);
 		StringBuilder sb;
-		int level = resource.level;
 
 		while (true) {
 			if (!isProcess) {
@@ -78,17 +77,17 @@ public class Crawler {
 				continue;
 			}
 
-			try {
-				log.info("Loaded " + resource.url + " level " + resource.level);
-				sb = performHttpGet(resource.url);
+			if (0 < resource.level) {
+				try {
+					sb = performHttpGet(resource.url);
+					loaded.add(resource.url);
+					log.info("Loaded " + resource.url + " level " + resource.level);
 
-			} catch (IOException e) {
-				log.error("Error in loading url " + resource.url + "\n" + e.getMessage());
-				continue;
-			}
-			level = resource.level - 1;
+				} catch (IOException e) {
+					log.error("Error during load url " + resource.url + " " + e.getMessage());
+					continue;
+				}
 
-			if (0 <= level) {
 				Set<String> pageLinks = PageParser.getLinks(sb, resource.url);
 				Page parsedPage = PageParser.getPage(sb);
 				results.add(new Page(resource.url, parsedPage.getTitle(), parsedPage.getContent()));
@@ -98,16 +97,19 @@ public class Crawler {
 					counter = linkCountLimit;
 				}
 
-				for (String link : pageLinks) {
-					if (0 >= --counter) {
-						break;
+				if(1 < resource.level) {
+					for (String link : pageLinks) {
+						if (0 >= --counter) {
+							break;
+						}
+						if (!loaded.contains(link)) {
+							queue.add(new Resource(link, resource.level - 1));
+						}
 					}
-					queue.add(new Resource(link, level));
 				}
 				log.info("Added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
-			}
 
-			loaded.add(resource.url);
+			}
 		}
 		isDone = true;
 
