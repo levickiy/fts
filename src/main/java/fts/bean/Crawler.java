@@ -13,18 +13,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class Crawler {
 	private int scanDeep;
 	private int linkCountLimit;
 	private String startPage;
 	private boolean isProcess;
+	private boolean isDone = false;
 	private Queue<Resource> queue = new ConcurrentLinkedQueue<Resource>();
-	private Set<Page> results = new HashSet<Page>();
+	private Queue<Page> results = new ConcurrentLinkedQueue<Page>();
 	private Set<String> loaded = new HashSet<String>();
 
 	private Logger log = LoggerFactory.getLogger(Crawler.class);
-	
+
 	public void init(int scanDeep, int linkCountLimit) {
 		this.scanDeep = scanDeep;
 		this.linkCountLimit = linkCountLimit;
@@ -39,16 +39,28 @@ public class Crawler {
 	public void stop() {
 		isProcess = false;
 	}
-	
+
 	public void start() {
 		isProcess = true;
+		Thread crawlerThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				process();
+
+			}
+		});
+
+		crawlerThread.start();
+	}
+
+	private void process() {
 		Resource resource = new Resource(startPage, scanDeep);
 		queue.add(resource);
 		StringBuilder sb;
-		int level = resource.level;
 
 		while (true) {
-			if(!isProcess) {
+			if (!isProcess) {
 				log.info("Crawler stoped.");
 				break;
 			}
@@ -65,18 +77,17 @@ public class Crawler {
 				continue;
 			}
 
-			try {
-				log.info("Loaded " + resource.url + " level " + resource.level);
-				sb = performHttpGet(resource.url);
-				
-				
-			} catch (IOException e) {
-				log.info("Error in loading url " + resource.url + "\n" + e.getMessage());
-				continue;
-			}
-			level = resource.level - 1;
+			if (0 < resource.level) {
+				try {
+					sb = performHttpGet(resource.url);
+					loaded.add(resource.url);
+					log.info("Loaded " + resource.url + " level " + resource.level);
 
-			if (0 <= level) {
+				} catch (IOException e) {
+					log.error("Error during load url " + resource.url + " " + e.getMessage());
+					continue;
+				}
+
 				Set<String> pageLinks = PageParser.getLinks(sb, resource.url);
 				Page parsedPage = PageParser.getPage(sb);
 				results.add(new Page(resource.url, parsedPage.getTitle(), parsedPage.getContent()));
@@ -86,19 +97,23 @@ public class Crawler {
 					counter = linkCountLimit;
 				}
 
-				for (String link : pageLinks) {
-					if (0 >= --counter) {
-						break;
+				if (1 < resource.level) {
+					for (String link : pageLinks) {
+						if (0 >= --counter) {
+							break;
+						}
+						if (!loaded.contains(link)) {
+							queue.add(new Resource(link, resource.level - 1));
+						}
 					}
-					queue.add(new Resource(link, level));
 				}
 				log.info("Added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
+
 			}
-
-			loaded.add(resource.url);
 		}
-		log.info("end.");
+		isDone = true;
 
+		log.info("end.");
 	}
 
 	public StringBuilder performHttpGet(String url) throws IOException {
@@ -121,7 +136,7 @@ public class Crawler {
 
 	}
 
-	public Set<Page> getResults() {
+	public Queue<Page> getResults() {
 		return results;
 
 	}
@@ -136,4 +151,7 @@ public class Crawler {
 		}
 	}
 
+	public boolean isDone() {
+		return isDone;
+	}
 }

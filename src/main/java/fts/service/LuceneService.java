@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -45,7 +44,7 @@ public class LuceneService {
 		}
 	}
 
-	public void addDocuments(Set<Page> scannedPages) {
+	public void addDocuments(Iterable<Page> scannedPages) {
 		try {
 			initIndex();
 
@@ -64,6 +63,7 @@ public class LuceneService {
 				indexWriter.commit();
 			}
 
+			log.info(indexWriter.numDocs() + " docs in index.");
 			indexWriter.close();
 
 		} catch (IOException e) {
