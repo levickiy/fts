@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import fts.bean.Page;
+import fts.bean.SearchResult;
 import fts.service.LuceneService;
 
 @Controller
@@ -30,16 +31,17 @@ public class SearchController {
 		Map<String, Object> model = new HashMap<String, Object>();
 
 		List<Page> results = new ArrayList<Page>();
+		SearchResult result = null; 
 
 		try {
-			results = luceneService.search(query);
+			result = luceneService.newSearch(query);
 		} catch (ParseException e) {
 			log.error(e.getMessage());
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 
-		model.put("results", results);
+		model.put("searchResult", result);
 		model.put("query", query);
 		
 		return new ModelAndView("search", model);

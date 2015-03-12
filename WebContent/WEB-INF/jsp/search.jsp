@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <html>
 <head>
 <title>Full test search</title>
@@ -35,9 +36,16 @@ input[name="q"] {
 			<input type="text" name="q" value="${query}"></input> <input
 				type="submit" value="Search"></input>
 		</form>
-		<div>${search}</div>
+		<div>
+		<c:if test="${0 == searchResult.maxResultCount}">
+			No results for "${query}".
+		</c:if>
+		<c:if test="${0 != searchResult.maxResultCount}">
+			Top ${fn:length(searchResult.results)} from ${searchResult.maxResultCount} results.
+		</c:if>
+		</div>
 		<div class="results">
-			<c:forEach var="item" items="${results}">
+			<c:forEach var="item" items="${searchResult.results}">
 				<div>
 					<p>
 						<b><a class="title" href="${item.url}">${item.title}</a></b><br/>

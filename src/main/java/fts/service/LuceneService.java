@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import fts.bean.Page;
+import fts.bean.SearchResult;
 
 @Service
 public class LuceneService {
@@ -85,7 +86,29 @@ public class LuceneService {
 			log.error(e.getMessage());
 		}
 	}
+	
+	public SearchResult newSearch(String queryStr) throws ParseException, IOException {
+		initIndex();
 
+		List<Page> results = new ArrayList<Page>();
+		Analyzer analyzer = new StandardAnalyzer();
+		IndexReader reader = DirectoryReader.open(index);
+		IndexSearcher indexSearcher = new IndexSearcher(reader);
+
+		QueryParser parser = new QueryParser("content", analyzer);
+		Query query = parser.parse(queryStr);
+		TopDocs topDocs = indexSearcher.search(query, 10);
+		ScoreDoc[] hits = topDocs.scoreDocs;
+		for (int i = 0; i < hits.length; ++i) {
+			Document d = indexSearcher.doc(hits[i].doc);
+			results.add(new Page(d.get("url"), d.get("title"), d.get("content")));
+		}
+		reader.close();
+
+		return new SearchResult(results, topDocs.totalHits);
+	}
+
+	@Deprecated
 	public List<Page> search(String queryStr) throws ParseException, IOException {
 		initIndex();
 
