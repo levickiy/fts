@@ -28,13 +28,16 @@ public class CrawlerService {
 
 	private String startUrl;
 
-	public void start(String url) {
+	public void start(final String url, final Integer deep) {
 		this.startUrl = url;
 		if (null == startUrl) {
 			log.info("Start url not set.");
 			return;
 		}
 
+		if(null != deep) {
+			this.scanDeep = deep;
+		}
 		Thread crawlerThread = new Thread(new Runnable() {
 
 			@Override
@@ -47,7 +50,11 @@ public class CrawlerService {
 				int counter = 0;
 				Set<Page> scannedPages;
 				Page page;
-				while (!crawler.isDone() || !crawler.getResults().isEmpty()) {
+				while (true) {
+					if (crawler.isDone() && crawler.getResults().isEmpty()) {
+						break;
+					}
+
 					if (!crawler.getResults().isEmpty()) {
 						scannedPages = new HashSet<Page>();
 
