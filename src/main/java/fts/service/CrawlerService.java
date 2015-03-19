@@ -74,7 +74,10 @@ public class CrawlerService {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						Thread.currentThread().interrupt();
+						crawler.stop();
+						log.info("CrawlerService interrupted.");
+						break;
 					}
 				}
 				log.info("Total added " + counter + " page to lucene index.");
