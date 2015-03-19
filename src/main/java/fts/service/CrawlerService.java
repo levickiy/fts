@@ -7,14 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import fts.bean.Crawler;
 import fts.bean.Page;
 
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Service
 public class CrawlerService {
 	private Logger log = LoggerFactory.getLogger(CrawlerService.class);
@@ -26,15 +23,7 @@ public class CrawlerService {
 	@Autowired
 	private LuceneService luceneService;
 
-	private String startUrl;
-
 	public void start(final String url, final Integer deep) {
-		this.startUrl = url;
-		if (null == startUrl) {
-			log.info("Start url not set.");
-			return;
-		}
-
 		if(null != deep) {
 			this.scanDeep = deep;
 		}
@@ -44,7 +33,7 @@ public class CrawlerService {
 			public void run() {
 				Crawler crawler = new Crawler();
 				crawler.init(scanDeep, linkCountLimit);
-				crawler.setStartPage(startUrl);
+				crawler.setStartPage(url);
 				crawler.start();
 
 				int counter = 0;
