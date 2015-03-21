@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import fts.bean.Page;
 import fts.bean.PageParser;
 
-public class PageParserTest  extends TestCase{
+public class PageParserTest  extends TestCase {
 	private StringBuilder sb;
 	public void setUp() {
 		sb = new StringBuilder();
