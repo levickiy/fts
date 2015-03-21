@@ -77,39 +77,37 @@ public class Crawler {
 				continue;
 			}
 
-			if (0 < resource.level) {
-				try {
-					sb = performHttpGet(resource.url);
-					loaded.add(resource.url);
-					log.info("Loaded " + resource.url + " level " + resource.level);
+			try {
+				sb = performHttpGet(resource.url);
+				loaded.add(resource.url);
+				log.info("Loaded " + resource.url + " level " + resource.level);
 
-				} catch (IOException e) {
-					log.error("Error during load url " + resource.url + " " + e.getMessage());
-					continue;
-				}
+			} catch (IOException e) {
+				log.error("Error during load url " + resource.url + " " + e.getMessage());
+				continue;
+			}
 
-				Set<String> pageLinks = PageParser.getLinks(sb, resource.url);
-				Page parsedPage = PageParser.getPage(sb);
-				results.add(new Page(resource.url, parsedPage.getTitle(), parsedPage.getContent()));
+			Set<String> pageLinks = PageParser.getLinks(sb, resource.url);
+			Page parsedPage = PageParser.getPage(sb);
+			results.add(new Page(resource.url, parsedPage.getTitle(), parsedPage.getContent()));
 
-				int counter = pageLinks.size();
-				if (0 != linkCountLimit && pageLinks.size() > linkCountLimit) {
-					counter = linkCountLimit;
-				}
+			int counter = pageLinks.size();
+			if (0 != linkCountLimit && pageLinks.size() > linkCountLimit) {
+				counter = linkCountLimit;
+			}
 
-				if (1 < resource.level) {
-					for (String link : pageLinks) {
-						if (0 >= --counter) {
-							break;
-						}
-						if (!loaded.contains(link)) {
-							queue.add(new Resource(link, resource.level - 1));
-						}
+			if (1 < resource.level) {
+				for (String link : pageLinks) {
+					if (0 >= --counter) {
+						break;
+					}
+					if (!loaded.contains(link)) {
+						queue.add(new Resource(link, resource.level - 1));
 					}
 				}
-				log.info("Added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
-
 			}
+			log.info("Added " + (pageLinks.size() < linkCountLimit ? pageLinks.size() : linkCountLimit) + " new links");
+
 		}
 		isDone = true;
 
