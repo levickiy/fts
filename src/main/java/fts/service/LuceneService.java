@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -14,6 +16,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -33,39 +36,41 @@ import fts.bean.SearchResult;
 @Service
 public class LuceneService {
 	private Logger log = LoggerFactory.getLogger(LuceneService.class);
+	private IndexWriter indexWriter;
+	private IndexSearcher indexSearcher;
+	private IndexReader indexReader;
+	private QueryParser parser;
 
 	@Value("${fts.lucene.index_path}")
 	private String indexPath;
 
 	private Directory index;
 
-	public void initIndex() throws IOException {
-		if (null == index) {
-			index = FSDirectory.open(Paths.get(indexPath));
-		}
+	@PostConstruct
+	public void init() throws IOException {
+		index = FSDirectory.open(Paths.get(indexPath));
+
+		Analyzer analyzer = new StandardAnalyzer();
+		IndexWriterConfig config = new IndexWriterConfig(analyzer);
+		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
+		config.setRAMBufferSizeMB(256.0);
+
+		indexWriter = new IndexWriter(index, config);
+
+		indexReader = DirectoryReader.open(index);
+		indexSearcher = new IndexSearcher(indexReader);
+
+		parser = new QueryParser("content", analyzer);
 	}
 
 	public void addDocuments(Iterable<Page> scannedPages) {
 		try {
-			initIndex();
-
-			Analyzer analyzer = new StandardAnalyzer();
-			IndexWriterConfig config = new IndexWriterConfig(analyzer);
-			IndexWriter indexWriter = new IndexWriter(index, config);
-
-			Document doc;
 			for (Page page : scannedPages) {
-				doc = new Document();
-				doc.add(new TextField("url", page.getUrl(), Store.YES));
-				doc.add(new TextField("title", page.getTitle(), Store.YES));
-				doc.add(new TextField("content", page.getContent(), Store.YES));
-
-				indexWriter.addDocument(doc);
-				indexWriter.commit();
+				addDocument(page);
 			}
+			indexWriter.commit();
 
 			log.info(indexWriter.numDocs() + " docs in index.");
-			indexWriter.close();
 
 		} catch (IOException e) {
 			log.error("Problem with adding documents to index " + e.getMessage());
@@ -73,29 +78,28 @@ public class LuceneService {
 
 	}
 
+	private void addDocument(Page page) throws IOException {
+		Document doc = new Document();
+		doc.add(new TextField("url", page.getUrl(), Store.YES));
+		doc.add(new TextField("title", page.getTitle(), Store.YES));
+		doc.add(new TextField("content", page.getContent(), Store.YES));
+
+		indexWriter.addDocument(doc);
+
+	}
+
 	public void clearIndex() {
 		try {
-			initIndex();
-			Analyzer analyzer = new StandardAnalyzer();
-			IndexWriterConfig config = new IndexWriterConfig(analyzer);
-			IndexWriter indexWriter = new IndexWriter(index, config);
-
 			indexWriter.deleteAll();
-			indexWriter.close();
+			indexWriter.commit();
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 	}
-	
+
 	public SearchResult newSearch(String queryStr) throws ParseException, IOException {
-		initIndex();
-
 		List<Page> results = new ArrayList<Page>();
-		Analyzer analyzer = new StandardAnalyzer();
-		IndexReader reader = DirectoryReader.open(index);
-		IndexSearcher indexSearcher = new IndexSearcher(reader);
 
-		QueryParser parser = new QueryParser("content", analyzer);
 		Query query = parser.parse(queryStr);
 		TopDocs topDocs = indexSearcher.search(query, 10);
 		ScoreDoc[] hits = topDocs.scoreDocs;
@@ -103,7 +107,6 @@ public class LuceneService {
 			Document d = indexSearcher.doc(hits[i].doc);
 			results.add(new Page(d.get("url"), d.get("title"), d.get("content")));
 		}
-		reader.close();
 
 		return new SearchResult(results, topDocs.totalHits);
 	}
