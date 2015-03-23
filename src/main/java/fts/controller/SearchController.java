@@ -1,9 +1,7 @@
 package fts.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import fts.bean.Page;
 import fts.bean.SearchResult;
 import fts.service.LuceneService;
 
@@ -30,7 +27,6 @@ public class SearchController {
 	public ModelAndView search(@RequestParam(value="q") String query) {
 		Map<String, Object> model = new HashMap<String, Object>();
 
-		List<Page> results = new ArrayList<Page>();
 		SearchResult result = null; 
 
 		try {

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -63,6 +64,21 @@ public class LuceneService {
 		parser = new QueryParser("content", analyzer);
 	}
 
+	@PreDestroy
+	public void sthutdown() {
+		try {
+			indexReader.close();
+		} catch (IOException e) {
+			log.error("Problem with closing indexReader");
+		}
+		try {
+			indexWriter.close();
+		} catch (IOException e) {
+			log.error("Problem with closing indexWriter");
+		}
+	}
+
+	@Deprecated
 	public void addDocuments(Iterable<Page> scannedPages) {
 		try {
 			for (Page page : scannedPages) {
@@ -78,7 +94,7 @@ public class LuceneService {
 
 	}
 
-	private void addDocument(Page page) throws IOException {
+	public void addDocument(Page page) throws IOException {
 		Document doc = new Document();
 		doc.add(new TextField("url", page.getUrl(), Store.YES));
 		doc.add(new TextField("title", page.getTitle(), Store.YES));
