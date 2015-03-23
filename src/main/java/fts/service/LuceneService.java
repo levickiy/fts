@@ -41,6 +41,7 @@ public class LuceneService {
 	private IndexSearcher indexSearcher;
 	private IndexReader indexReader;
 	private QueryParser parser;
+	DirectoryReader dirrectoryReader;
 
 	@Value("${fts.lucene.index_path}")
 	private String indexPath;
@@ -54,10 +55,12 @@ public class LuceneService {
 		Analyzer analyzer = new StandardAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		config.setOpenMode(OpenMode.CREATE_OR_APPEND);
-		config.setRAMBufferSizeMB(256.0);
+		config.setMaxBufferedDocs(10);
 
 		indexWriter = new IndexWriter(index, config);
 
+		dirrectoryReader = DirectoryReader.open(indexWriter, true);
+		
 		indexReader = DirectoryReader.open(index);
 		indexSearcher = new IndexSearcher(indexReader);
 
@@ -115,6 +118,13 @@ public class LuceneService {
 	}
 
 	public SearchResult newSearch(String queryStr) throws ParseException, IOException {
+		DirectoryReader newDirrectoryReader = DirectoryReader.openIfChanged(dirrectoryReader);
+		if(null != newDirrectoryReader) {
+			dirrectoryReader = newDirrectoryReader;
+		}
+
+		indexSearcher = new IndexSearcher(dirrectoryReader);
+		
 		List<Page> results = new ArrayList<Page>();
 
 		Query query = parser.parse(queryStr);

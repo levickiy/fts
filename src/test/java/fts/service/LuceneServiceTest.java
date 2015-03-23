@@ -28,15 +28,13 @@ public class LuceneServiceTest {
 	}
 
 	@Test
-	public void addDocumentsTest() throws ParseException, IOException {
+	public void addDocumentTest() throws ParseException, IOException {
 		assertNotNull(service);
 
-		List<Page> pageList = new ArrayList<Page>();
 		for (int i = 0; i < 10; i++) {
-			pageList.add(new Page("http://page" + i + ".com", "Title " + i, "Page " + i));
+			service.addDocument(new Page("http://page" + i + ".com", "Title " + i, "Page " + i));
 		}
 
-		service.addDocuments(pageList);
 		SearchResult searchResult = service.newSearch("Page");
 		assertNotNull(searchResult);
 		assertEquals(Integer.valueOf(10), searchResult.getMaxResultCount());
