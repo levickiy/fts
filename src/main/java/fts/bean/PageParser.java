@@ -29,10 +29,10 @@ public class PageParser {
 		return result;
 	}
 
-	public static Page getPage(StringBuilder sb) {
+	public static Page getPage(String url, StringBuilder sb) {
 		String pageContent = sb.toString().replaceAll("<style\\b[^>]*>([\\s\\S]*?)</style>", "").replaceAll("<script\\b[^>]*>([\\s\\S]*?)</script>", "").replaceAll("<[^>]*>", " ")
 				.replaceAll("(\\s+)", " ").trim();
-		return new Page("", getTitle(sb), pageContent);
+		return new Page(url, getTitle(sb), pageContent);
 	}
 
 	private static String getTitle(StringBuilder sb) {

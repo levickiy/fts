@@ -17,8 +17,9 @@ public class PageParserTest  extends TestCase {
 		.append("</html></body>");
 	}
 	public void testGetPage() {
-		Page page = PageParser.getPage(sb);
+		Page page = PageParser.getPage("http://foo.bar", sb);
 		assertEquals("page title test link test link too", page.getContent());
+		assertEquals("http://foo.bar", page.getUrl());
 	}
 
 	public void testGetLinks() {
@@ -30,12 +31,12 @@ public class PageParserTest  extends TestCase {
 	}
 	
 	public void testGetTitle() {
-		assertEquals("page title", PageParser.getPage(sb).getTitle());
+		assertEquals("page title", PageParser.getPage("", sb).getTitle());
 		
 		sb = new StringBuilder();
 		sb.append("<head style=\"overflow-y: scroll;\">	<title>Global Private Equity & Venture Capital Data | Technology | PitchBook</title>    <meta name=\"viewport\" content=\"width=device-width\" />");
 		
-		assertEquals("Global Private Equity & Venture Capital Data | Technology | PitchBook", PageParser.getPage(sb).getTitle());
+		assertEquals("Global Private Equity & Venture Capital Data | Technology | PitchBook", PageParser.getPage("", sb).getTitle());
 	}
 	
 	public void testNormaliseURI() {

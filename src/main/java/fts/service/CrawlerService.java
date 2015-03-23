@@ -75,7 +75,7 @@ public class CrawlerService {
 				Set<String> pageLinks = PageParser.getLinks(sb, resource.url);
 				log.info("Loaded: " + resource.url + " level: " + resource.level);
 
-				Page parsedPage = PageParser.getPage(sb);
+				Page parsedPage = PageParser.getPage(resource.url, sb);
 
 				if (1 < resource.level) {
 					for (String url : pageLinks) {
