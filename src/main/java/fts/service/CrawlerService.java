@@ -32,8 +32,6 @@ public class CrawlerService {
 	private Logger log = LoggerFactory.getLogger(CrawlerService.class);
 	@Value("${fts.crawler.scan_deep}")
 	private Integer scanDeep;
-	@Value("${fts.crawler.links_per_page}")
-	private Integer linkCountLimit;
 	@Value("${fts.crawler.max_thread}")
 	private Integer threadLimit;
 
