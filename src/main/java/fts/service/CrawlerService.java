@@ -8,9 +8,7 @@ import java.net.URLConnection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +34,7 @@ public class CrawlerService {
 	private Integer threadLimit;
 
 	private ExecutorService execService;
-	private volatile Set<String> scannedLinks = Collections.synchronizedSet(new HashSet<String>());
+	private Set<String> scannedLinks = Collections.synchronizedSet(new HashSet<String>());
 
 	@Autowired
 	private LuceneService luceneService;
