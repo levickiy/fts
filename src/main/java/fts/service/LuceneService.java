@@ -101,6 +101,7 @@ public class LuceneService {
 		doc.add(new TextField("content", page.getContent(), Store.YES));
 
 		indexWriter.addDocument(doc);
+		indexWriter.commit();
 
 	}
 
