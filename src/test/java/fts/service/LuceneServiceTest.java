@@ -1,10 +1,9 @@
 package fts.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.junit.Test;
@@ -39,18 +38,4 @@ public class LuceneServiceTest {
 		assertNotNull(searchResult);
 		assertEquals(Integer.valueOf(10), searchResult.getMaxResultCount());
 	}
-
-	@Test
-	public void newSearchTest() {
-		assertNotNull(service);
-		
-		fail();
-	}
-
-	@Test
-	public void clearIndexTest() {
-		service.clearIndex();
-		fail();
-	}
-
 }
