@@ -77,12 +77,12 @@ public class CrawlerService {
 				boolean isNew;
 				if (1 < resource.level) {
 					for (String url : pageLinks) {
-						isNew = true;
+						isNew = false;
 
 						synchronized (scannedLinks) {
 							if (!scannedLinks.contains(url)) {
 								scannedLinks.add(url);
-								isNew = false;
+								isNew = true;
 							} 
 						}
 						if(isNew) {
