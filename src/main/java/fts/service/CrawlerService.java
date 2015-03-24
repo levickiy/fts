@@ -74,14 +74,19 @@ public class CrawlerService {
 				log.info("Loaded: " + resource.url + " level: " + resource.level);
 
 				Page parsedPage = PageParser.getPage(resource.url, sb);
-
+				boolean isNew;
 				if (1 < resource.level) {
 					for (String url : pageLinks) {
+						isNew = true;
+
 						synchronized (scannedLinks) {
 							if (!scannedLinks.contains(url)) {
 								scannedLinks.add(url);
-								execService.execute(new CrawlerThread(new Resource(url, resource.level - 1)));
-							}
+								isNew = false;
+							} 
+						}
+						if(isNew) {
+							execService.execute(new CrawlerThread(new Resource(url, resource.level - 1)));
 						}
 					}
 
