@@ -1,6 +1,5 @@
 package fts.bean;
 
-
 public class Page {
 	private String url;
 	private String title;
@@ -35,5 +34,5 @@ public class Page {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	
+
 }

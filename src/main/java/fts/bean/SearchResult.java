@@ -1,5 +1,6 @@
 package fts.bean;
 
+import java.util.Collections;
 import java.util.List;
 
 public class SearchResult {
@@ -17,5 +18,9 @@ public class SearchResult {
 
 	public Integer getMaxResultCount() {
 		return maxResultCount;
+	}
+	
+	public static SearchResult getEmpty() {
+		return new SearchResult(Collections.<Page> emptyList(), 0);
 	}
 }

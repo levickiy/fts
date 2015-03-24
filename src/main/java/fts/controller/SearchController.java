@@ -27,7 +27,7 @@ public class SearchController {
 	public ModelAndView search(@RequestParam(value="q") String query) {
 		Map<String, Object> model = new HashMap<String, Object>();
 
-		SearchResult result = null; 
+		SearchResult result = SearchResult.getEmpty(); 
 
 		try {
 			result = luceneService.newSearch(query);

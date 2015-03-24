@@ -14,7 +14,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -39,7 +38,6 @@ public class LuceneService {
 	private Logger log = LoggerFactory.getLogger(LuceneService.class);
 	private IndexWriter indexWriter;
 	private IndexSearcher indexSearcher;
-	private IndexReader indexReader;
 	private QueryParser parser;
 	DirectoryReader dirrectoryReader;
 
@@ -60,9 +58,8 @@ public class LuceneService {
 		indexWriter = new IndexWriter(index, config);
 
 		dirrectoryReader = DirectoryReader.open(indexWriter, true);
-		
-		indexReader = DirectoryReader.open(index);
-		indexSearcher = new IndexSearcher(indexReader);
+
+		indexSearcher =  new IndexSearcher(dirrectoryReader);
 
 		parser = new QueryParser("content", analyzer);
 	}
@@ -70,7 +67,7 @@ public class LuceneService {
 	@PreDestroy
 	public void sthutdown() {
 		try {
-			indexReader.close();
+			dirrectoryReader.close();
 		} catch (IOException e) {
 			log.error("Problem with closing indexReader");
 		}
@@ -79,22 +76,6 @@ public class LuceneService {
 		} catch (IOException e) {
 			log.error("Problem with closing indexWriter");
 		}
-	}
-
-	@Deprecated
-	public void addDocuments(Iterable<Page> scannedPages) {
-		try {
-			for (Page page : scannedPages) {
-				addDocument(page);
-			}
-			indexWriter.commit();
-
-			log.info(indexWriter.numDocs() + " docs in index.");
-
-		} catch (IOException e) {
-			log.error("Problem with adding documents to index " + e.getMessage());
-		}
-
 	}
 
 	public void addDocument(Page page) throws IOException {

@@ -23,7 +23,7 @@ public class IndexController {
 	private LuceneService luceneService;
 
 	@RequestMapping(value = "/index", method = RequestMethod.POST)
-	public ModelAndView indexing(@RequestParam(value = "q", required = false) String query, @RequestParam(value = "d", required = false, defaultValue="2") Integer deep) {
+	public ModelAndView indexing(@RequestParam(value = "q", required = false) String query, @RequestParam(value = "d", required = false, defaultValue = "2") Integer deep) {
 		crawlerService.start(query, deep);
 
 		String message = "indexing page: " + query;
